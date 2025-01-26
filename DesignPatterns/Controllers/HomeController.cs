@@ -1,4 +1,6 @@
-﻿using DesignPatterns.Models;
+﻿using DesignPatterns.Factories;
+using DesignPatterns.Models;
+using DesignPatterns.NewFolder;
 using DesignPatterns.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -22,6 +24,22 @@ namespace DesignPatterns.Controllers
             _logger = logger;
         }
 
+        // Método para retornar el
+        private CarFactory chooseFactory(string vehicle)
+        {
+            switch (vehicle) 
+            {
+                case "Mustang":
+                    return new FordMustangFactory();
+                case "Explorer":
+                    return new FordExplorerFactory();
+                case "Escape":
+                    return new FordEscapeFactory();
+                default:
+                    throw new ArgumentException();
+            }
+        }
+
         public IActionResult Index()
         {
             var model = new HomeViewModel();
@@ -33,16 +51,38 @@ namespace DesignPatterns.Controllers
         }
 
         [HttpGet]
+
+        // Se instancia el builder y se envía directamente a .Build()
         public IActionResult AddMustang()
         {
-            _vehicleRepository.AddVehicle(new Car("red","Ford","Mustang"));
+            var builder = new CarModelBuilder();
+            _vehicleRepository.AddVehicle(builder.Build());
+            return Redirect("Index");
+        }
+
+        [HttpGet]
+
+        // Se instancia el builder, se setea el modelo y el color, y se envía directamente a .Build()
+        public IActionResult AddExplorer()
+        {
+            var builder = new CarModelBuilder();
+            _vehicleRepository.AddVehicle(builder
+                .setModel("Explorer")
+                .setColor("black")
+                .Build());
             return Redirect("/");
         }
 
         [HttpGet]
-        public IActionResult AddExplorer()
+
+        // Se instancia el builder, se setea el modelo y el color, y se envía directamente a .Build()
+        public IActionResult AddEscape()
         {
-            _vehicleRepository.AddVehicle(new Car("red", "Ford", "Explorer"));
+            var builder = new CarModelBuilder();
+            _vehicleRepository.AddVehicle(builder
+                .setModel("Escape")
+                .setColor("blue")
+                .Build());
             return Redirect("/");
         }
 
